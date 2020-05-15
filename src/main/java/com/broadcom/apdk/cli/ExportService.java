@@ -453,7 +453,21 @@ class ExportService {
 		}
 		return null;
 	}
-	
+
+	private String getActionTitle(Class<? extends IAction> actionClass) {
+		if (actionClass != null) {
+			try {
+				IAction action = (IAction) actionClass.getDeclaredConstructor().newInstance();
+				return action.getTitle();
+			}
+			catch (InstantiationException | IllegalAccessException | IllegalArgumentException |
+					InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				return actionClass.getSimpleName().toUpperCase();
+			}
+		}
+		return null;
+	}
+
 	private Map<Path, String> getFileWithDestinationPath(Map<Path, String> files, Path destinationFolder) {
 		Map<Path, String> filesWithDestPath = new HashMap<Path, String>();
 		for (Map.Entry<Path, String> entry : files.entrySet()) {
@@ -799,7 +813,7 @@ class ExportService {
 		
 		// Create Workflow
 		Workflow actionWorkflow = new Workflow(actionPackName + ".PUB.ACTION." + actionName);
-		actionWorkflow.setTitle(getActionName(action.getClass()));
+		actionWorkflow.setTitle(getActionTitle(action.getClass()));
 		actionWorkflow.setChildQueue("*OWN");
 		actionWorkflow.setErrorFreeStatus("ANY_OK");
 		actionWorkflow.setGenerateAtRuntime(true);
